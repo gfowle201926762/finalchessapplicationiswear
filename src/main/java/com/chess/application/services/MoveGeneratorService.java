@@ -5,6 +5,7 @@ import com.chess.application.model.Game;
 import com.chess.application.model.NativePayload;
 import com.chess.application.model.ReturnPayload;
 
+import com.chess.application.model.Status;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -21,22 +22,28 @@ public class MoveGeneratorService {
         this.nativeEngineService = nativeEngineService;
     }
 
-    public void initialiseGame(Game game) {
-        gameStoreService.createNewGame(game);
+    public Game initialiseGame(Game game) {
+        return gameStoreService.createNewGame(game);
+    }
+
+    public void updateGameSettings(String id, Status status) {
+        gameStoreService.updateGame(id, status);
     }
 
     public ReturnPayload respondToMove(MoveWrapper move) {
         Game game = gameStoreService.getGame(move.getUuid());
         NativePayload nativePayload = NativePayload.builder()
-                .fenString(game.getLastFenString())
-                .settings(game.getSettings())
-                .origin(move.getMove().getOrigin())
-                .destination(move.getMove().getDestination())
-                .promotion(move.getMove().getPromotion())
-                .castle(move.getMove().isCastle())
-                .castleType(move.getMove().getCastleType())
-                .build();
+            .fenString(game.getLastFenString())
+            .settings(game.getSettings())
+            .origin(move.getMove().getOrigin())
+            .destination(move.getMove().getDestination())
+            .promotion(move.getMove().getPromotion())
+            .castle(move.getMove().isCastle())
+            .castleType(move.getMove().getCastleType())
+            .hashValues(game.getHashValues() == null ? null : game.getHashValues().stream().mapToLong(Long::longValue).toArray())
+            .build();
         ReturnPayload returnPayload = nativeEngineService.test_java_interface(nativePayload);
+        System.out.println("client fen: " + returnPayload.getFenStringClient() + ";           engine fen: " + returnPayload.getFenStringEngine());
         gameStoreService.updateGame(move.getUuid(), returnPayload);
         return returnPayload;
     }

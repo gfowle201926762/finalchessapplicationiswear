@@ -2,11 +2,11 @@ package com.chess.application.model;
 
 public enum Status {
     ONGOING,
-    WHITE,
+    WHITE_VICTORY,
     DRAW,
-    BLACK;
+    BLACK_VICTORY;
 
-    public static Status get(long index) {
+    public static Status get(int index) {
         return values()[(int) index];
     }
 }

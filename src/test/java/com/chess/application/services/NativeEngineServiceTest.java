@@ -5,8 +5,36 @@ import com.chess.application.model.*;
 
 import org.junit.jupiter.api.Test;
 
+import static org.junit.jupiter.api.Assertions.*;
+
 
 public class NativeEngineServiceTest {
+    private final NativeEngineService nativeEngineService = new NativeEngineService();
+
+
+    @Test
+    public void canHandleEndOfGame() {
+        Move move = new Move(Square.c7.ordinal(), Square.a7.ordinal(), 0, false, 0);
+
+        Settings settings = Settings.builder()
+            .breadth(5)
+            .startPlayer(Colour.WHITE.ordinal())
+            .timeLimit(1)
+            .build();
+
+        NativePayload nativePayload = NativePayload.builder()
+            .fenString("1r5k/2r5/8/8/8/8/8/K7 b - - 0 1")
+            .origin(move.getOrigin())
+            .destination(move.getDestination())
+            .settings(settings)
+            .build();
+
+        ReturnPayload returnPayload = nativeEngineService.test_java_interface(nativePayload);
+
+        assertEquals("1r5k/r7/8/8/8/8/8/K7 w - - ? ?", returnPayload.getFenStringClient());
+        assertTrue(returnPayload.getFenStringEngine().isEmpty());
+        assertEquals(Status.BLACK_VICTORY, returnPayload.getStatus());
+    }
 
     @Test
     public void assertEngineFunctions() {

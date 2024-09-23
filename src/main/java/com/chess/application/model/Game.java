@@ -1,5 +1,6 @@
 package com.chess.application.model;
 
+import com.chess.application.controller.model.OpponentType;
 import com.chess.application.controller.model.Settings;
 import lombok.Builder;
 import lombok.Data;
@@ -12,12 +13,14 @@ import java.util.UUID;
 @Data
 @Builder(toBuilder = true)
 public class Game {
-    UUID uuid;
-    UUID playerId;
-    UUID opponentId;
+    String uuid;
+    String playerId;
+    String opponentId;
+    OpponentType opponentType;
     List<String> fenStrings;
     Status status;
     Settings settings;
+    List<Long> hashValues;
 
     public String getLastFenString() {
         return fenStrings.get(fenStrings.size() - 1);
@@ -27,4 +30,7 @@ public class Game {
         fenStrings.add(fenString);
     }
 
+    public void addHashValue(long hashValue) {
+        hashValues.add(hashValue);
+    }
 }

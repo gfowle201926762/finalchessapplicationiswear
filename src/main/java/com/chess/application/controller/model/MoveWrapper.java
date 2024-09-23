@@ -8,6 +8,6 @@ import java.util.UUID;
 @Value
 @Builder
 public class MoveWrapper {
-    UUID uuid;
+    String uuid;
     Move move;
 }

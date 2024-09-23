@@ -12,6 +12,16 @@ public class Move {
     long promotion;
     boolean castle;
     long castleType;
+    long eval;
+
+    public Move(long origin, long destination, long promotion, boolean castle, long castleType, long eval) {
+        this.origin = origin;
+        this.destination = destination;
+        this.promotion = promotion;
+        this.castle = castle;
+        this.castleType = castleType;
+        this.eval = eval;
+    }
 
     public Move(long origin, long destination, long promotion, boolean castle, long castleType) {
         this.origin = origin;

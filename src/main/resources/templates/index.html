@@ -5,13 +5,15 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Chess Room</title>
-    <link rel="stylesheet" href="{% static 'main/style_yeahhhhh.css'%}">
-    <script src="{% static 'main/script_yolob.js'%}" defer type="module"></script>
+    <link rel="stylesheet" th:href="@{css/style.css}">
+    {% comment %} <script src="{% static 'javascript/index.js'%}" defer type="module"></script> {% endcomment %}
+    <script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@stomp/stompjs@7.0.0/bundles/stomp.umd.min.js"></script>
+    <script th:src="@{javascript/index.js}" defer type="module"></script>
 </head>
 
 
 <body>
-<p>Hello index page</p>
 <div class='nav_container'>
     <a method='POST' href="{%url 'home'%}" class='nav_top_button nav_button'>Play!</a>
 
