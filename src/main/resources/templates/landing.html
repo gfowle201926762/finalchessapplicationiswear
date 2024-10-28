@@ -6,9 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Chess Room</title>
     <link rel="stylesheet" th:href="@{css/style.css}">
-    <script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@stomp/stompjs@7.0.0/bundles/stomp.umd.min.js"></script>
-    <script th:src="@{javascript/index.js}" defer type="module"></script>
+    <script th:src="@{javascript/landing.js}" defer type="module"></script>
 </head>
 
 
@@ -16,22 +14,16 @@
 <div class='nav_container'>
     <a method='POST' href="{%url 'home'%}" class='nav_top_button nav_button'>Play!</a>
 
-    {%if profile == True%}
     <a method='GET' href="{%url 'profile' request.user.profile.pk%}" class='nav_button'>Profile
         <p class='hidden' id='notification_count'>{{count}}</p>
     </a>
-    {%endif%}
 
     <a id='search_button' href="{%url 'profile_search'%}" class='nav_button'>Search</a>
 
-    {%if profile == True%}
     <form method='POST' action="{%url 'logout'%}" class='nav_button'>
-        {%csrf_token%}
         <button type="submit">Logout</button>
     </form>
-    {%else%}
     <a href="{%url 'login'%}" class='nav_button'>Login</a>
-    {%endif%}
 
 </div>
 

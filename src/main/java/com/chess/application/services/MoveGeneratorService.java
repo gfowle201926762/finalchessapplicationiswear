@@ -35,6 +35,7 @@ public class MoveGeneratorService {
         NativePayload nativePayload = NativePayload.builder()
             .fenString(game.getLastFenString())
             .settings(game.getSettings())
+            .javaRequestType(move.getJavaRequestType())
             .origin(move.getMove().getOrigin())
             .destination(move.getMove().getDestination())
             .promotion(move.getMove().getPromotion())
@@ -42,8 +43,10 @@ public class MoveGeneratorService {
             .castleType(move.getMove().getCastleType())
             .hashValues(game.getHashValues() == null ? null : game.getHashValues().stream().mapToLong(Long::longValue).toArray())
             .build();
+        System.out.println("java request type: " + nativePayload.getJavaRequestType() + ", startPlayer: " + nativePayload.getSettings().getStartPlayer());
         ReturnPayload returnPayload = nativeEngineService.test_java_interface(nativePayload);
         System.out.println("client fen: " + returnPayload.getFenStringClient() + ";           engine fen: " + returnPayload.getFenStringEngine());
+
         gameStoreService.updateGame(move.getUuid(), returnPayload);
         return returnPayload;
     }

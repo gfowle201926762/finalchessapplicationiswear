@@ -32,8 +32,15 @@ export class Board {
                 else{
                     board_element.classList.add("darksquare")
                 }
+                if (x == 1) {
+                    // backing.innerHTML("a");
+                }
             }
         }
+    }
+
+    doNothing() {
+
     }
 
     saveLegalMoves(messageData) {
@@ -69,7 +76,18 @@ export class Board {
         return false;
     }
 
-    flipBoard() {
+    flipTakenPieces() {
+        const top_board_wrapper = document.getElementById("top_board_wrapper");
+        const top_player_wrapper = top_board_wrapper.firstChild;
+
+        const bottom_board_wrapper = document.getElementById("bottom_board_wrapper");
+        const bottom_player_wrapper = bottom_board_wrapper.firstChild;
+
+        bottom_board_wrapper.insertBefore(top_player_wrapper, bottom_board_wrapper.firstChild);
+        top_board_wrapper.insertBefore(bottom_player_wrapper, top_board_wrapper.firstChild);
+    }
+
+    flipBoard(flipInfo) {
         this.removeTracking();
         var savedElements = [];
         var toCoords = [];
@@ -110,6 +128,9 @@ export class Board {
             backingTo.classList.add(taken ? "new_taken_square" : "new_free_square");
             const backingFrom = this.board.querySelector(`.board > div.backing[style*="grid-column-start: ${fromCoords[0]}; grid-row-start: ${fromCoords[1]};"]`);
             backingFrom.classList.add("original_square");
+        }
+        if (flipInfo) {
+            this.flipTakenPieces();
         }
         this.flipped = this.flipped ? false : true;
     }
@@ -278,7 +299,6 @@ export class Board {
 
         imageElement.style.gridColumnStart = (origin % 8) + 1;
         imageElement.style.gridRowStart = Math.floor(origin / 8) + 1;
-        console.log(imageElement);
 
         if (killedType != null) {
             const killedElement = document.createElement("img");
@@ -290,8 +310,7 @@ export class Board {
             killedElement.style.gridColumnStart = (destination % 8) + 1;
             killedElement.style.gridRowStart = Math.floor(destination / 8) + 1;
             board.appendChild(killedElement);
-            console.log(`colour: ${colour}, inverted colour: ${this.invertColour(colour)}`);
-            console.log(killedElement);
+            this.removeTakenPiece(this.invertColour(colour), killedType);
         }
         this.currentMove -= 1;
 
@@ -378,8 +397,99 @@ export class Board {
         this.fenStrings.push(fenString);
     }
 
+    removeTakenPiece(colour, killedType) {
+        const top_take_board = document.getElementById("top_board_wrapper").firstChild.lastChild;
+        const bottom_take_board = document.getElementById("bottom_board_wrapper").firstChild.lastChild;
+
+        var take_board = null;
+        if ((colour == 'white' && this.flipped == false) || (colour == 'black' && this.flipped == true)) {
+            take_board = top_take_board;
+        }
+        else {
+            take_board = bottom_take_board;
+        }
+
+        console.log(`image_type_div id: ${colour}_${killedType}_div`)
+
+        const image_type_div = document.getElementById(`${colour}_${killedType}_div`);
+
+        if (image_type_div.childNodes.length <= 1) {
+            take_board.removeChild(image_type_div);
+            return;
+        }
+
+        image_type_div.removeChild(image_type_div.firstChild);
+    }
+
+    isMoreValuable(pieceType1, pieceType2) {
+        if (pieceType1 == 'pawn') {
+            return false;
+        }
+        if (pieceType1 == 'knight' && pieceType2 != 'pawn') {
+            return false;
+        }
+        if (pieceType1 == 'bishop' && pieceType2 != 'knight' && pieceType2 != 'pawn') {
+            return false;
+        }
+        if (pieceType1 == 'castle' && pieceType2 != 'bishop' && pieceType2 != 'knight' && pieceType2 != 'pawn') {
+            return false;
+        }
+        if (pieceType1 == 'queen' && pieceType2 != 'castle' && pieceType2 != 'bishop' && pieceType2 != 'knight' && pieceType2 != 'pawn') {
+            return false;
+        }
+        if (pieceType1 == 'king' && pieceType2 == 'king') {
+            return false;
+        }
+        return true;
+    }
+
+    insertTakeDiv(take_board, image_type_div, killedType) {
+        for (let i = 0; i < take_board.childNodes.length; i++) {
+            const childNodeType = take_board.childNodes[i].getAttribute("id").match("(?<=[a-z]+_)[a-z]+(?=_div)")
+            console.log(`childNodeType: ${childNodeType}`);
+            if (this.isMoreValuable(killedType, childNodeType)) {
+                take_board.insertBefore(image_type_div, take_board.childNodes[i]);
+                return;
+            }
+        }
+        take_board.appendChild(image_type_div);
+    }
+
+    addTakenPiece(colour, killedType) {
+
+        const top_take_board = document.getElementById("top_board_wrapper").firstChild.lastChild;
+        const bottom_take_board = document.getElementById("bottom_board_wrapper").firstChild.lastChild;
+
+        var image_type_div = document.getElementById(`${colour}_${killedType}_div`);
+
+        if (image_type_div == null) {
+            image_type_div = document.createElement('div');
+            image_type_div.setAttribute('id', `${colour}_${killedType}_div`);
+            image_type_div.classList.add('taken_piece_wrapper');
+
+            if ((colour == 'white' && this.flipped == false) || (colour == 'black' && this.flipped == true)) {
+                this.insertTakeDiv(top_take_board, image_type_div, killedType);
+            }
+            else {
+                this.insertTakeDiv(bottom_take_board, image_type_div, killedType);
+            }
+        }
+
+        const image = document.createElement('img')
+        image.src = `/images/pieces/${colour}_${killedType}.png`;
+
+        if (killedType == 'pawn'){
+            image.classList.add('small_pawn_image')
+        }
+        else{
+            image.classList.add('small_image')
+        }
+        image_type_div.appendChild(image);
+
+    }
+
     executeMove(origin, destination, promotion, castle, castleType, colour) {
-        console.log("executeMove: origin: ", origin, "; destination: ", destination, "flipped: ", this.flipped);
+        console.log("executeMove: origin: ", origin, "; destination: ", destination, "flipped: ", this.flipped, "; promotion: ", promotion);
 
         this.removeToFrom();
         this.removeTracking();
@@ -402,6 +512,7 @@ export class Board {
         if (killedElement != null) {
             killedType = killedElement.getAttribute('name');
             this.board.removeChild(killedElement);
+            this.addTakenPiece(this.invertColour(colour), killedType);
         }
 
         var imageElement;

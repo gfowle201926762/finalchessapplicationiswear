@@ -2,13 +2,13 @@ package com.chess.application.model;
 
 
 import com.chess.application.controller.model.Move;
-import lombok.Builder;
-import lombok.Getter;
+import lombok.*;
 
 import java.io.Serializable;
 
-//@Builder
+//@Builder(toBuilder = true)
 @Getter
+@Setter
 public class ReturnPayload implements Serializable {
     String fenStringClient;
     String fenStringEngine;
@@ -19,6 +19,13 @@ public class ReturnPayload implements Serializable {
     long moveHashClient;
     long moveHashEngine;
 
+//    public static class ReturnPayloadBuilder {
+//        public ReturnPayloadBuilder javaRequestType(long statusLong) {
+//            this.status = Status.get((int) statusLong);
+//            return this;
+//        }
+//    }
+
     public ReturnPayload(String fenStringClient, String fenStringEngine, Move response, Move[] clientLegalMoves, long legalLength, long statusLong, long moveHashClient, long moveHashEngine) {
         this.fenStringClient = fenStringClient;
         this.fenStringEngine = fenStringEngine;
@@ -28,5 +35,9 @@ public class ReturnPayload implements Serializable {
         this.status = Status.get((int) statusLong);
         this.moveHashClient = moveHashClient;
         this.moveHashEngine = moveHashEngine;
+    }
+
+    public ReturnPayload(Status status) {
+        this.status = status;
     }
 }

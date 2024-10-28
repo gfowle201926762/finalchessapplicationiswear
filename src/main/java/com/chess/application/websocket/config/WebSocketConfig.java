@@ -20,6 +20,6 @@ public class WebSocketConfig implements WebSocketConfigurer {
 
     @Override
     public void registerWebSocketHandlers(WebSocketHandlerRegistry registry) {
-        registry.addHandler(webSocketHandler, "/websocket").setAllowedOrigins("*");
+        registry.addHandler(webSocketHandler, "/game/websocket").setAllowedOrigins("http://127.0.0.1:8080");
     }
 }

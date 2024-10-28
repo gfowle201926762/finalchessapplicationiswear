@@ -33,6 +33,17 @@ public class ApplicationController {
     }
 
     @GetMapping("/")
+    public ResponseEntity<String> setup(String playerId) {
+        Context context = new Context();
+        context.setVariable("playerId", playerId);
+        String htmlContent = templateEngine.process("landing", context);
+        return ResponseEntity
+            .status(200)
+            .header(HttpHeaders.CONTENT_TYPE, "text/html")
+            .body(htmlContent);
+    }
+
+    @GetMapping("/game")
     public ResponseEntity<String> index(String id) {
         Context context = new Context();
         context.setVariable("gameId", id);
@@ -43,22 +54,22 @@ public class ApplicationController {
                 .body(htmlContent);
     }
 
-    @MessageMapping("/move")
-    @SendTo("/topic/move")
-    public String sendMove(@Payload String received) {
-        // move is received from the client.
-        // What is returned here is sent back to the client.
-//        return moveGeneratorService.respondToMove(clientMove);
-        System.out.println("IN SEND MOVE JAVA");
-        return "message received.";
-    }
-
-    @MessageMapping("/start_game")
-    @SendTo("/topic/move")
-    public ReturnPayload startGame(@Payload Game game) {
-        // move is received from the client.
-        // What is returned here is sent back to the client.
-        return null;
-//        return moveGeneratorService.initialiseGame(game);
-    }
+//    @MessageMapping("/move")
+//    @SendTo("/topic/move")
+//    public String sendMove(@Payload String received) {
+//        // move is received from the client.
+//        // What is returned here is sent back to the client.
+////        return moveGeneratorService.respondToMove(clientMove);
+//        System.out.println("IN SEND MOVE JAVA");
+//        return "message received.";
+//    }
+//
+//    @MessageMapping("/start_game")
+//    @SendTo("/topic/move")
+//    public ReturnPayload startGame(@Payload Game game) {
+//        // move is received from the client.
+//        // What is returned here is sent back to the client.
+//        return null;
+////        return moveGeneratorService.initialiseGame(game);
+//    }
 }

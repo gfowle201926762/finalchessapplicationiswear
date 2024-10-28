@@ -14,8 +14,8 @@ import java.util.UUID;
 @Builder(toBuilder = true)
 public class Game {
     String uuid;
-    String playerId;
-    String opponentId;
+    String whiteId;
+    String blackId;
     OpponentType opponentType;
     List<String> fenStrings;
     Status status;

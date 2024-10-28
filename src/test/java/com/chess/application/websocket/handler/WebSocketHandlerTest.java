@@ -21,7 +21,7 @@ public class WebSocketHandlerTest {
         GameStoreService gameStoreService = new GameStoreService();
         NativeEngineService nativeEngineService = new NativeEngineService();
         MoveGeneratorService moveGeneratorService = new MoveGeneratorService(gameStoreService, nativeEngineService);
-        webSocketHandler = new WebSocketHandler(moveGeneratorService);
+        webSocketHandler = new WebSocketHandler(moveGeneratorService, gameStoreService);
     }
 
 //    @Test
