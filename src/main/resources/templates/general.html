@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <!-- Required meta tags -->
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="stylesheet" th:href="@{css/style.css}">
+    </head>
+
+
+    <body>
+        <div th:fragment="navbar" class='nav_container'>
+            <a href="/start-game" class='nav_top_button nav_button'>Play!</a>
+
+            <a th:if="${authenticated}" method='GET' th:href="@{'/profile/' + ${user.username}}" class='nav_button'>Profile
+                <p class='hidden' id='notification_count'>{{count}}</p>
+            </a>
+
+            <a id='search_button' href="{%url 'profile_search'%}" class='nav_button'>Search</a>
+
+            <form th:if="${authenticated}" method='POST' th:action="@{/logout}" class='nav_button'>
+                <button type="submit">Logout</button>
+            </form>
+            <a th:unless="${authenticated}" th:href="@{/login}" class='nav_button'>Login</a>
+        </div>
+        
+        <div th:replace="${content}"></div>
+    </body>
+</html>

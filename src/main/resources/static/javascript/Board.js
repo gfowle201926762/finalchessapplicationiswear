@@ -66,7 +66,9 @@ export class Board {
     }
 
     getLegalMovesLength(origin) {
-        return this.legalMoves[this.flipMoveCoordinates(origin)].length;
+        var flipped = this.flipMoveCoordinates(origin);
+        console.log(flipped)
+        return this.legalMoves[flipped].length;
     }
 
     isCoordinateInLegalMoves(coordinate) {
@@ -178,8 +180,10 @@ export class Board {
     }
 
     flipMoveCoordinates() {
+        console.log(`arguments: ${arguments}`);
         var flippedCoordinates = [];
         for (let i = 0; i < arguments.length; i++) {
+            console.log(arguments[i]);
             if (this.flipped) {
                 flippedCoordinates.push(((7 - Math.floor(arguments[i] / 8)) * 8) + (7 - (arguments[i] % 8)));
             }

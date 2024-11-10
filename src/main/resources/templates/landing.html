@@ -11,31 +11,12 @@
 
 
 <body>
-<div class='nav_container'>
-    <a method='POST' href="{%url 'home'%}" class='nav_top_button nav_button'>Play!</a>
+    <div th:replace="~{general :: navbar}"></div>
 
-    <a method='GET' href="{%url 'profile' request.user.profile.pk%}" class='nav_button'>Profile
-        <p class='hidden' id='notification_count'>{{count}}</p>
-    </a>
-
-    <a id='search_button' href="{%url 'profile_search'%}" class='nav_button'>Search</a>
-
-    <form method='POST' action="{%url 'logout'%}" class='nav_button'>
-        <button type="submit">Logout</button>
-    </form>
-    <a href="{%url 'login'%}" class='nav_button'>Login</a>
-
-</div>
-
-
-
-<div id="board_wrapper" class="board_wrapper">
-    <div id="board" class="board">
+    <div id="board_wrapper" class="board_wrapper">
+        <div id="board" class="board">
+        </div>
     </div>
-</div>
-
-
-
 </body>
 
 

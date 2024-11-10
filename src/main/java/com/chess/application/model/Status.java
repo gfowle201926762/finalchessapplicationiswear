@@ -9,4 +9,18 @@ public enum Status {
     public static Status get(int index) {
         return values()[(int) index];
     }
+
+    public enum Reason {
+        NONE,
+        CHECKMATE,
+        ABANDONMENT,
+        RESIGNATION,
+        STALEMATE,
+        REPETITION,
+        INSUFFICIENT_MATERIAL;
+
+        public static Reason get(int index) {
+            return values()[(int) index];
+        }
+    }
 }

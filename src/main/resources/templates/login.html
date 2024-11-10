@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <!-- Required meta tags -->
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>Chess Room</title>
+        <link rel="stylesheet" th:href="@{css/style.css}">
+    </head>
+
+
+    <body>
+        <div th:replace="~{general :: navbar}"></div>
+        <div class="login_container">
+            <h1>Login</h1>
+            <form th:action="@{/login}" method="post" th:object="${userDto}">
+                <div class="login_element">
+                    <div th:if="${param.error}" class="alert">
+                        <span th:if="${param.error}" class="small_text center_text">Invalid login details</span>
+                    </div>
+                </div>
+                <input class="login_element" th:field="*{username}" id="username" name="username" type="text" placeholder="Username" required>
+                <input class="login_element" th:field="*{password}" id="password" name="password" type="password" placeholder="Password" required>
+                <button class="login_element login_button" type="submit">Login</button>
+            </form>
+            <div class="">
+                <p class=>Don't have an account? <a class="link" th:href="@{/register}">Register here!</a></p>
+            </div>
+        </div>
+    </body>
+
+</html>

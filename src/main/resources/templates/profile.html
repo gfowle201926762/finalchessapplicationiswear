@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <!-- Required meta tags -->
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>Chess Room</title>
+        <link rel="stylesheet" th:href="@{/css/style.css}">
+    </head>
+
+
+    <body>
+        <div th:replace="~{general :: navbar}"></div>
+
+
+
+        <div th:if="${userExists}" id="board_wrapper" class="board_wrapper">
+            <div class='profile_wrapper'>
+                <div class='header_wrapper'>
+                    <p class='profile' th:text="${profile.username}"></p>
+                </div>
+
+                <div class='profile_info_wrapper'>
+                    <!--<div class='friends_wrapper'>
+                        <p class='friend_title'>Friends</p>
+                        <div class='friends_container'>
+                            {%for friend in friend_list%}
+                                <a class='friend' href="{%url 'profile' friend.profile.pk%}">{{friend.profile.name}}</a>
+                            {%endfor%}
+                        </div>
+                    </div>-->
+                    <div class='friends_wrapper'>
+                        <p class='friend_title'>Previous Games</p>
+                        <div class='friends_container'>
+                            <div th:each="game : ${games}" class='challenge_info_wrapper'>
+                                <p th:text="${game.whiteId == profile.username ? game.blackId : game.whiteId}"></p>
+                                <a class='challenge_info_wrapper' th:href="@{'/game/' + ${game.uuid}}">
+                                    <p class="small_text" th:text="${game.dateTime}"></p>
+                                    <p th:text="${game.status}"></p>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </body>
+
+</html>

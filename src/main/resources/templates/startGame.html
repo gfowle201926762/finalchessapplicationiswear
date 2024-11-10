@@ -5,18 +5,16 @@
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <title>Chess Room</title>
-        <link rel="stylesheet" th:href="@{/css/style.css}">
+        <link rel="stylesheet" th:href="@{css/style.css}">
         <script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/@stomp/stompjs@7.0.0/bundles/stomp.umd.min.js"></script>
-        <script th:src="@{/javascript/index.js}" defer type="module"></script>
+        <script th:src="@{javascript/startGame.js}" defer type="module"></script>
     </head>
 
 
     <body>
-        <div style="display: none;" id="bottom_player_info">You: <span class="no_wrap" th:text="${username}"></span></div>    
+        <div style="display: none;" id="bottom_player_info">You: <span class="no_wrap" th:text="${username}"></span></div>   
         <div th:replace="~{general :: navbar}"></div>
-
-
 
         <div id="board_wrapper" class="board_wrapper">
             <div id="board" class="board">

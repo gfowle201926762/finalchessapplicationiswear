@@ -1,12 +1,15 @@
 package com.chess.application.controller.model;
 
-import lombok.Builder;
-import lombok.Value;
+import jakarta.persistence.Embeddable;
+import lombok.*;
 
-@Value
+@NoArgsConstructor
+@AllArgsConstructor
+@Data
 @Builder
+@Embeddable
 public class Settings {
     long breadth;
-    long startPlayer;
+    long engineColour;
     long timeLimit;
 }

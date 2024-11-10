@@ -13,6 +13,85 @@ body{
     display: flex;
     justify-content: center;
     align-items: center;
+    font-family: Verdana, Arial, Helvetica, sans-serif;
+}
+
+a {
+    text-decoration: none;
+    color: black;
+}
+
+.small_text {
+    font-size: small;
+}
+
+.no_wrap {
+    width: 90%;
+    font-style: bold;
+    white-space: nowrap;    
+    overflow: hidden;       
+    text-overflow: ellipsis; 
+    font-size: clamp(1px, 15px, 16px);   /* Shrinks text based on viewport width, with a max size of 16px */
+}
+
+.link {
+    cursor: pointer;
+    text-decoration: underline;
+}
+
+.login_element {
+    height: 10%;
+    width: clamp(30%, 170px, 100%); /* 30%;*/
+    text-align: center;
+    border-radius: 10px 10px 10px 10px;
+}
+
+.alert {
+    background-color: orange;
+    width: 100%;
+    height: 100%;
+    border-radius: 10px 10px 10px 10px;
+}
+
+.center_text {
+    width: 50%;
+}
+
+.login_container {
+    display: flex;
+    flex-direction: column;
+    height: 60%;
+    width: 40%;
+    justify-content: center;
+    align-items: center;
+    border-radius: 10px 10px 10px 10px;
+    background: rgb(98, 95, 95);
+    box-shadow: 3px 3px 2px black;
+}
+
+.login_input {
+    width: 95%;
+    height: 100%;
+    /* display: flex; */
+    margin: 10%;
+    padding: 3% 0% 3% 0%;
+    font-size: 16px;
+    /* color: #000; */
+    border-radius: 10px 10px 10px 10px;
+    background: rgb(108, 105, 105);
+}
+
+.login_input:focus {
+    background: rgb(108, 105, 105);
+}
+
+form {
+    height: 50%;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+    align-items: center;
 }
 
 
@@ -23,7 +102,7 @@ body{
     height: 100%;
     width: 10%;
     min-width: 60px;
-    background-color: rgb(98, 95, 95);;
+    background-color: rgb(98, 95, 95);
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -47,6 +126,10 @@ body{
     font-size: 1em;
 }
 
+.login_button {
+    background-color: rgb(120, 188, 122);
+}
+
 .nav_top_button{
     color: black;
     text-decoration: none;
@@ -58,7 +141,12 @@ body{
 
 .nav_button:hover{
     cursor: pointer;
-    box-shadow: 3px 3px 2px rgb(120, 188, 122);;
+    box-shadow: 3px 3px 2px rgb(120, 188, 122);
+}
+
+.login_button:hover{
+    cursor: pointer;
+    box-shadow: 3px 3px 2px black;
 }
 
 button{
@@ -126,10 +214,6 @@ button{
     margin: 2%;
     height: 50%;
     width: 100%;
-    font-family:'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
-    font-weight: bold;
-    font-size: 1.1em;
-
 }
 
 .menu_collection{
@@ -421,6 +505,7 @@ button{
 }
 
 input[type="number"] {
+/* input { */
     width: 100%;
     height: 100%;
     /* display: flex; */
@@ -639,7 +724,7 @@ input::placeholder {
 .challenge_info_wrapper{
     width: 95%;
     display: flex;
-    justify-content: space-between;
+    justify-content: space-around;
     align-items: center;
 }
 

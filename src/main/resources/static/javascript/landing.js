@@ -5,12 +5,12 @@ start_screen();
 
 function handle_login_to_play(event) {
     close_start_screen();
-    window.location.href = "http://127.0.0.1:8080/game";
+    window.location.href = "/login";
 }
 
 function handle_play_as_guest(event) {
     close_start_screen();
-    window.location.href = "http://127.0.0.1:8080/game";
+    window.location.href = "/start-game";
 }
 
 

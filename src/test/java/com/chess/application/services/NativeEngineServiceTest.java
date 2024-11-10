@@ -18,7 +18,7 @@ public class NativeEngineServiceTest {
 
         Settings settings = Settings.builder()
             .breadth(5)
-            .startPlayer(Colour.WHITE.ordinal())
+            .engineColour(Colour.WHITE.ordinal())
             .timeLimit(1)
             .build();
 
@@ -53,7 +53,7 @@ public class NativeEngineServiceTest {
 
         Settings settings = Settings.builder()
             .breadth(5)
-            .startPlayer(1)
+            .engineColour(1)
             .timeLimit(5)
             .build();
 

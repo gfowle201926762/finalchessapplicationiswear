@@ -1,58 +1,37 @@
 
 import { game_board } from "./Board.js";
-import * as module from './setup.js';
 
-const socket = new WebSocket("ws://localhost:8080/game/websocket");
+please_wait();
+initialiseButtons();
 
+const playerId = document.getElementById('bottom_player_info').firstElementChild.innerHTML;
+console.log(document.getElementById('bottom_player_info').firstElementChild);
+console.log(document.getElementById('bottom_player_info').firstElementChild.innerHTML);
+
+const regex = "[^/]+$";
+const game_id = window.location.href.match(regex)[0];
+console.log(`game_id: ${game_id}`);
+
+const socket = new WebSocket("ws://localhost:8080/websockets/game");
 
 
 var lastClickedOwn = null;
 
 var game_state = 'initialising';
-var game_id = null;
 var game_ended = false;
 var menu_down = false;
-var currentPlayer = null;
+var currentPlayer = 'white';
 var clientPlayer = null;
-var game_request_sent = false;
-
-
-
-function handle_new_game() {
-    console.log("handle_new_game");
-    if (module.opposition != null && module.colour != null && game_request_sent == false) {
-        console.log("STARTING!");
-        module.close_start_screen();
-        please_wait();
-        game_request_sent = true;
-        var colour = module.colour;
-        if (colour == 'random') {
-            colour = Math.floor((Math.random() * 10)) % 2 == 0 ? 'white' : 'black';
-        }
-        console.log("COLOUR: ", colour);
-        
-        sendMessage({
-            'messageType' : 'INITIALISE',
-            'playerId' : 'placementPlayerId',
-            'opponentId' : 'placementOpponentId',
-            'opponentType' : module.opposition,
-            'breadth' : 100,
-            'startPlayer' : (colour == 'white' ? 'black' : 'white'),
-            'timeLimit' : module.compute_time
-        });
-        clientPlayer = colour;
-        currentPlayer = 'white';
-        initialiseButtons();
-        document.addEventListener('click', handleClick);
-        console.log("HANDLE NEW GAME... currentPlayer: ", currentPlayer, "; clientPlayer: ", clientPlayer);
-        
-    }
-}
+var replaying = false;
 
   
 socket.onopen = function(event) {
     console.log("WebSocket connection established.");
-    module.start_screen(handle_new_game);
+    sendMessage({
+        'messageType' : 'INITIALISE',
+        'playerId' : playerId,
+        'gameId' : game_id
+    });
 };
 
 socket.onerror = function(error) {
@@ -75,59 +54,86 @@ function isGettingLegalMovesOnly(messageData) {
     return messageData['fenStringClient'] == null || messageData['fenStringEngine'] == null;
 }
 
+function isReplay(messageData) {
+    if (messageData['uuid'] != undefined) {
+        return true;
+    }
+    return false;
+}
+
 socket.onmessage = function(event) {
     const messageData = JSON.parse(event.data);
     // Handle incoming message data
     console.log("Received message:", messageData);
     console.log("gamestate: ", game_state);
 
+    if (isReplay(messageData)) {
+        replaying = true;
+        for (let i = 0; i < messageData['moves'].length; i++) {
+            var move = messageData['moves'][i];
+            console.log(move);
+            var [origin, destination] = game_board.flipMoveCoordinates(move['origin'], move['destination']);
+            game_board.executeMove(origin, destination, move['promotion'],
+                move['castle'], move['castleType'], currentPlayer
+            );
+            invert_current_player();
+        }
+        game_finished(messageData['status'], messageData['reason'], true);
+        game_ended = true;
+        socket.close();
+        return;
+    }
+
     if (game_state == 'initialising') {
+        clientPlayer = messageData['colour'].toLowerCase();
         game_board.saveFenString(messageData['fenString']);
         game_board.processFEN(messageData['fenString']);
+        var opponentId = messageData['opponentUsername']
+        var top_player_info = document.getElementById('top_player_info')
+        top_player_info.innerHTML = `Opponent: ${opponentId}`
         game_state = 'in_play';
-        game_id = messageData['id'];
         if (clientPlayer == 'black') {
             game_board.flipBoard(false);
         }
         remove_please_wait();
         console.log("ON_MESSAGE INITIALISE... currentPlayer: ", currentPlayer, "; clientPlayer: ", clientPlayer);
+        addEventListener("click", handleClick);
         return;
     }
-    else {
-        console.log(`status: ${messageData['status']}`);
-         
-        if (!game_ended && !isGettingLegalMovesOnly(messageData) && opponentCanMove(messageData)) {
-            if (messageData['fenStringClient'].length > 0) {
-                game_board.saveFenString(messageData['fenStringClient']);
-            }
-            if (messageData['fenStringEngine'].length > 0) {
-                game_board.saveFenString(messageData['fenStringEngine']);
-            }
-            if (!game_board.isSafeToMove()) {
-                lastClickedOwn = null;
-                game_board.goMostRecent();
-            }
-            var [origin, destination] = game_board.flipMoveCoordinates(messageData['response']['origin'], messageData['response']['destination']);
-            console.log(`origin: ${origin}, destination: ${destination}`);
-    
-            game_board.executeMove(origin, destination, messageData['response']['promotion'],
-                messageData['response']['castle'], messageData['response']['castleType'], game_board.invertColour(clientPlayer)
-            );
-            invert_current_player();
-        }
+
+    console.log(`status: ${messageData['status']}`);
         
-        if (messageData['status'] != "ONGOING") {
-            // GAME OVER
-            game_finished(messageData['status'], true);
-            game_ended = true;
+    if (!game_ended && !isGettingLegalMovesOnly(messageData) && opponentCanMove(messageData)) {
+        if (messageData['fenStringClient'].length > 0) {
+            game_board.saveFenString(messageData['fenStringClient']);
         }
-        
+        if (messageData['fenStringEngine'].length > 0) {
+            game_board.saveFenString(messageData['fenStringEngine']);
+        }
+        if (!game_board.isSafeToMove()) {
+            lastClickedOwn = null;
+            game_board.goMostRecent();
+        }
+        var [origin, destination] = game_board.flipMoveCoordinates(messageData['response']['origin'], messageData['response']['destination']);
+        console.log(`origin: ${origin}, destination: ${destination}`);
+
+        game_board.executeMove(origin, destination, messageData['response']['promotion'],
+            messageData['response']['castle'], messageData['response']['castleType'], game_board.invertColour(clientPlayer)
+        );
+        invert_current_player();
     }
+    
+    if (messageData['status'] != "ONGOING") {
+        // GAME OVER
+        game_finished(messageData['status'], messageData['reason'], true);
+        game_ended = true;
+        socket.close();
+    }
+        
     console.log("SAVING LEGAL MOVES... currentPlayer: ", currentPlayer, "; clientPlayer: ", clientPlayer);
     game_board.saveLegalMoves(messageData);
     console.log("legal moves:");
     console.log(game_board.legalMoves);
-    
 };
 
 function sendMessage(message) {
@@ -144,7 +150,7 @@ function handleClick(event) {
     // console.log("handleClick; flipped: ", game_board.flipped);
     const piece = event.target;
 
-    if (!game_board.isSafeToMove()) {
+    if (replaying || !game_board.isSafeToMove()) {
         return;
     }
     // console.log("one");
@@ -160,11 +166,11 @@ function handleClick(event) {
         lastClickedOwn = null;
         return;
     }
-    // console.log("three");
+    console.log("three");
 
     const computedStyle = window.getComputedStyle(piece);
-    const row = computedStyle.gridRow;
-    const col = computedStyle.gridColumn;
+    const row = computedStyle.gridRow.charAt(0);
+    const col = computedStyle.gridColumn.charAt(0);
     var origin = ((row - 1) * 8) + (col - 1);
 
     // send move if already clicked own piece, and you have selected empty square, or a piece which is not yours
@@ -176,9 +182,10 @@ function handleClick(event) {
 
     
     // show legal moves, if you selected your own piece (and it's not what you last selected)
-    // console.log(piece);
-    // console.log(`origin: ${origin}, row: ${row}, col: ${col}`);
+    console.log(piece);
+    console.log(`origin: ${origin}, row: ${row}, col: ${col}`);
     if (piece.classList.contains(clientPlayer) && game_board.isCoordinateInLegalMoves(origin)) {
+        console.log("wow");
         lastClickedOwn = piece;
         for (let i = 0; i < game_board.getLegalMovesLength(origin); i++) {
             const backing = game_board.board.querySelector(`.board > div.backing[style*="grid-column-start: ${(game_board.getLegalMoveCoordinate(origin, i, "destination") % 8) + 1}; grid-row-start: ${Math.floor(game_board.getLegalMoveCoordinate(origin, i, "destination") / 8) + 1};"]`);
@@ -193,8 +200,8 @@ function handleClick(event) {
 
 function sendMoveToServerIfValid(piece, origin, rowDestination) {
     const lastClickedStyle = window.getComputedStyle(lastClickedOwn);
-    const lastClickedRow = lastClickedStyle.gridRow;
-    const lastClickedCol = lastClickedStyle.gridColumn;
+    const lastClickedRow = lastClickedStyle.gridRow.charAt(0);
+    const lastClickedCol = lastClickedStyle.gridColumn.charAt(0);
     var lastClickedOrigin = ((lastClickedRow - 1) * 8) + (lastClickedCol - 1);
 
     for (let i = 0; i < game_board.getLegalMovesLength(lastClickedOrigin); i++) {
@@ -288,16 +295,15 @@ function handle_close_option_screen() {
 }
 
 function handle_abort_game(){
-    handle_close_option_screen();
-    var result = 'game aborted';
-    game_ended = true;
-    game_finished(result);
+    // handle_close_option_screen();
+    // var reason = 'RESIGNATION';
+    // game_ended = true;
+    // game_finished(clientPlayer == "black" ? "WHITE_VICTORY" : "BLACK_VICTORY", reason);
     sendMessage({
         'messageType' : 'GAME_STATUS_UPDATE',
         'uuid' : game_id,
-        'status' : result
+        'reason' : "RESIGNATION"
     });
-    // need confirmation that the abortion has been completed.
 }
 
 function handle_menu(event) {
@@ -392,14 +398,18 @@ function initialiseButtons() {
     // creating top and bottom player info containers
     const top_player_info = document.createElement('div')
     top_player_info.classList.add('player_info')
+    top_player_info.classList.add('no_wrap')
     top_player_info.setAttribute('id', 'top_player_info')
-    top_player_info.innerHTML = `Opponent: opponent`
+    top_player_info.innerHTML = `Opponent: loading`
     top_player_wrapper.appendChild(top_player_info)
 
-    const bottom_player_info = document.createElement('div')
-    bottom_player_info.classList.add('player_info')
+    // const bottom_player_info = document.createElement('div')
+    const bottom_player_info = document.getElementById('bottom_player_info')
+    bottom_player_info.removeAttribute("style");
+    bottom_player_info.classList.add('player_info') 
+    bottom_player_info.classList.add('no_wrap')
     bottom_player_info.setAttribute('id', 'bottom_player_info')
-    bottom_player_info.innerHTML = `You: myself`
+    // bottom_player_info.innerHTML = `You: myself`
     bottom_player_wrapper.appendChild(bottom_player_info)
 
     // creating top and bottom takeboards
@@ -510,7 +520,7 @@ function handle_rematch(event){
     please_wait();
 }
 
-function game_finished(result, disallowed){
+function game_finished(result, reason, disallowed){
     if (document.getElementById('end_screen') == null){
 
         const board = document.getElementById('board')
@@ -541,7 +551,7 @@ function game_finished(result, disallowed){
         end_screen.appendChild(announcement)
 
         const info = document.createElement('div')
-        info.innerHTML = `${result}`
+        info.innerHTML = `${result} by ${reason}`
         info.classList.add('text_wrapper')
         end_screen.appendChild(info)
 
