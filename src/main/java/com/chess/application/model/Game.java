@@ -1,18 +1,12 @@
 package com.chess.application.model;
 
-import com.chess.application.controller.model.Move;
-import com.chess.application.controller.model.OpponentType;
-import com.chess.application.controller.model.Settings;
 import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
-
-import java.util.UUID;
 
 @NoArgsConstructor
 @AllArgsConstructor

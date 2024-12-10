@@ -1,4 +1,4 @@
-package com.chess.application.controller.model;
+package com.chess.application.model;
 
 public enum Name {
     NONE,

@@ -1,6 +1,5 @@
 package com.chess.application.websocket.handler;
 
-import com.chess.application.controller.model.*;
 import com.chess.application.model.*;
 import com.chess.application.services.MoveGeneratorService;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -21,7 +20,7 @@ import java.util.concurrent.ConcurrentLinkedDeque;
 
 @Slf4j
 @Service
-public class GameSetupWebsocketHandlerGame extends AbstractGameWebSocketHandler {
+public class GameSetupWebsocketHandler extends AbstractGameWebSocketHandler {
 
     private final Map<WebSocketSession, String> sessions = new ConcurrentHashMap<>();
     private final Map<String, WebSocketSession> connections = new ConcurrentHashMap<>();
@@ -31,7 +30,7 @@ public class GameSetupWebsocketHandlerGame extends AbstractGameWebSocketHandler 
     private final ObjectMapper objectMapper;
 
     @Autowired
-    public GameSetupWebsocketHandlerGame(MoveGeneratorService moveGeneratorService, ObjectMapper objectMapper) {
+    public GameSetupWebsocketHandler(MoveGeneratorService moveGeneratorService, ObjectMapper objectMapper) {
         super(objectMapper);
         this.moveGeneratorService = moveGeneratorService;
         this.objectMapper = objectMapper;
@@ -96,7 +95,6 @@ public class GameSetupWebsocketHandlerGame extends AbstractGameWebSocketHandler 
         } catch (JsonProcessingException e) {
             log.warn("Failed to connect players.", e);
         }
-
     }
 
     private void handleComputerInitialisation(JsonNode jsonNode, Colour clientColour, WebSocketSession session) throws JsonProcessingException {

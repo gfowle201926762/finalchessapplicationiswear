@@ -1,10 +1,7 @@
-package com.chess.application.controller.model;
+package com.chess.application.model;
 
-import com.chess.application.model.JavaRequestType;
 import lombok.Builder;
 import lombok.Value;
-
-import java.util.UUID;
 
 @Value
 @Builder(toBuilder = true)

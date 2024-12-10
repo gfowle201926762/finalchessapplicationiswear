@@ -359,6 +359,19 @@ button{
     z-index: var(--first);
 }
 
+.promotion_piece {
+    height: 80%;
+    width: 80%;
+    margin: 3%;
+}
+
+.promotion_piece:hover {
+    cursor: pointer;
+    height: 86%;
+    width: 86%;
+    margin: 0%;
+}
+
 .optional{
     height: 70%;
     width: 70%;
@@ -523,7 +536,16 @@ input::placeholder {
     font-size: .9em;
 }
 
-
+.promotion_selection {
+    z-index: var(--end_screen);
+    height: 110%;
+    width: 110%;
+    border-radius: 10px 10px 10px 10px;
+    background: rgba(250, 20, 80, 1);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
 
 .drop_down{
     z-index: var(--end_screen);
@@ -692,17 +714,24 @@ input::placeholder {
 }
 
 .profile_info_wrapper{
+    height: 90%;
     width: 100%;
     display: flex;
     justify-content: space-around;
 }
 
 .friends_wrapper{
+    height: 100%;
     width: 90%;
     margin-top: 5%;
     display: flex;
     flex-direction: column;
     justify-content: left;
+}
+
+.friends_container {
+    height: 80%; /* Set a fixed height for the container */
+    overflow-y: scroll; /* Enable vertical scrolling */
 }
 
 .friend{
@@ -724,8 +753,10 @@ input::placeholder {
 .challenge_info_wrapper{
     width: 95%;
     display: flex;
-    justify-content: space-around;
+    justify-content: space-between;
     align-items: center;
+    padding-left: 10%;
+    padding-right: 10%;
 }
 
 .challenge_choice_wrapper{

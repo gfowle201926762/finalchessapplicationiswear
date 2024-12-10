@@ -1,6 +1,5 @@
 package com.chess.application.controller;
 
-import com.chess.application.controller.model.Settings;
 import com.chess.application.model.*;
 import com.chess.application.services.GameService;
 import com.chess.application.services.MoveGeneratorService;
@@ -8,8 +7,6 @@ import com.chess.application.services.UserService;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ResourceLoader;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -18,12 +15,10 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.thymeleaf.TemplateEngine;
-import org.thymeleaf.context.Context;
 
 import java.security.Principal;
+import java.util.Comparator;
 import java.util.List;
-import java.util.Objects;
-import java.util.UUID;
 
 
 @Controller
@@ -140,9 +135,10 @@ public class ApplicationController {
         model.addAttribute("profile", profile);
 
         if (profile != null) {
-//            List<Game> games = profile.getGameIds().stream().map(gameStoreService::getGame).filter(Objects::nonNull).toList();
-            List<Game> games = gameService.getGamesForPlayer(username);
-            System.out.println("games: " + games);
+            List<Game> games = gameService.getGamesForPlayer(username).stream()
+                .sorted(Comparator.comparing(Game::getZonedDateTime)
+                    .reversed())
+                .toList();
             model.addAttribute("games", games);
         }
 
@@ -151,10 +147,6 @@ public class ApplicationController {
             model.addAttribute("user", userService.findByUsername(customUserDetails.getUsername()));
         }
 
-        System.out.println("PROFILE user: " + model.getAttribute("user"));
-        System.out.println("PROFILE authenticated: " + model.getAttribute("authenticated"));
-        System.out.println("PROFILE customUserDetails: " + customUserDetails);
-        System.out.println("PROFILE profile: " + model.getAttribute("profile"));
         return "profile";
     }
 

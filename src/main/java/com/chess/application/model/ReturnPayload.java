@@ -1,7 +1,6 @@
 package com.chess.application.model;
 
 
-import com.chess.application.controller.model.Move;
 import lombok.*;
 
 import java.io.Serializable;

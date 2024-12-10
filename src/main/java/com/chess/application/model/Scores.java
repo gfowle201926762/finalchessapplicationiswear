@@ -1,4 +1,4 @@
-package com.chess.application.controller.model;
+package com.chess.application.model;
 
 import lombok.Builder;
 import lombok.Value;

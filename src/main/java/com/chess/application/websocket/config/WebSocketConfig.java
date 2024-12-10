@@ -1,23 +1,22 @@
 package com.chess.application.websocket.config;
 
-import com.chess.application.websocket.handler.GamePlayGameWebSocketHandler;
-import com.chess.application.websocket.handler.GameSetupWebsocketHandlerGame;
+import com.chess.application.websocket.handler.GamePlayWebSocketHandler;
+import com.chess.application.websocket.handler.GameSetupWebsocketHandler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.socket.config.annotation.EnableWebSocket;
 import org.springframework.web.socket.config.annotation.WebSocketConfigurer;
 import org.springframework.web.socket.config.annotation.WebSocketHandlerRegistry;
-import org.springframework.web.socket.server.support.HttpSessionHandshakeInterceptor;
 
 @Configuration
 @EnableWebSocket
 public class WebSocketConfig implements WebSocketConfigurer {
 
-    private final GamePlayGameWebSocketHandler gamePlayWebSocketHandler;
-    private final GameSetupWebsocketHandlerGame gameSetupWebsocketHandler;
+    private final GamePlayWebSocketHandler gamePlayWebSocketHandler;
+    private final GameSetupWebsocketHandler gameSetupWebsocketHandler;
 
     @Autowired
-    public WebSocketConfig(GamePlayGameWebSocketHandler gamePlayWebSocketHandler, GameSetupWebsocketHandlerGame gameSetupWebsocketHandler) {
+    public WebSocketConfig(GamePlayWebSocketHandler gamePlayWebSocketHandler, GameSetupWebsocketHandler gameSetupWebsocketHandler) {
         this.gamePlayWebSocketHandler = gamePlayWebSocketHandler;
         this.gameSetupWebsocketHandler = gameSetupWebsocketHandler;
     }

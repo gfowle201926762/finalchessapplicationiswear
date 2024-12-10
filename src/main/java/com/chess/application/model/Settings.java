@@ -1,4 +1,4 @@
-package com.chess.application.controller.model;
+package com.chess.application.model;
 
 import jakarta.persistence.Embeddable;
 import lombok.*;

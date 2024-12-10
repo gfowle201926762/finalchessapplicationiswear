@@ -1,12 +1,14 @@
 package com.chess.application.services;
 
-import com.chess.application.controller.model.Move;
+import com.chess.application.model.Move;
 import com.chess.application.model.Game;
 import com.chess.application.model.ReturnPayload;
 import com.chess.application.model.Status;
 import com.chess.application.repositories.GameRepository;
 import jakarta.persistence.EntityManager;
+import jakarta.persistence.NoResultException;
 import jakarta.transaction.Transactional;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -15,6 +17,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+@Slf4j
 @Service
 public class GameServiceImpl implements GameService {
 
@@ -31,35 +34,39 @@ public class GameServiceImpl implements GameService {
     public Game getGame(String id) {
         System.out.println("GETTING GAME: " + id);
         // prevent Hibernate's multipleBagException -> can fix with a Set but that won't get rid of the Cartesian product.
-        Game game = entityManager.createQuery("""
-            select g
-            from Game g
-            left join fetch g.fenStrings
-            where g.uuid = :gameId
-            """, Game.class)
-            .setParameter("gameId", id)
-            .getSingleResult();
+        Game game = null;
+        try {
+            game = entityManager.createQuery("""
+                    select g
+                    from Game g
+                    left join fetch g.fenStrings
+                    where g.uuid = :gameId
+                    """, Game.class)
+                .setParameter("gameId", id)
+                .getSingleResult();
 
-        List<String> fenStrings = game.getFenStrings();
+            List<String> fenStrings = game.getFenStrings();
 
-        List<Long> hashValues = entityManager.createQuery("""
-            select g
-            from Game g
-            left join fetch g.hashValues
-            where g.uuid = :gameId
-            """, Game.class)
-            .setParameter("gameId", id)
-            .getSingleResult().getHashValues(); //.toBuilder().fenStrings(fenStrings).build();
+            List<Long> hashValues = entityManager.createQuery("""
+                    select g
+                    from Game g
+                    left join fetch g.hashValues
+                    where g.uuid = :gameId
+                    """, Game.class)
+                .setParameter("gameId", id)
+                .getSingleResult().getHashValues(); //.toBuilder().fenStrings(fenStrings).build();
 
-        game = entityManager.createQuery("""
-            select g
-            from Game g
-            left join fetch g.moves
-            where g.uuid = :gameId
-            """, Game.class)
-            .setParameter("gameId", id)
-            .getSingleResult().toBuilder().fenStrings(fenStrings).hashValues(hashValues).build();
-
+            game = entityManager.createQuery("""
+                    select g
+                    from Game g
+                    left join fetch g.moves
+                    where g.uuid = :gameId
+                    """, Game.class)
+                .setParameter("gameId", id)
+                .getSingleResult().toBuilder().fenStrings(fenStrings).hashValues(hashValues).build();
+        } catch (NoResultException e) {
+            log.warn("Game {} not found", id, e);
+        }
         return game;
     }
 

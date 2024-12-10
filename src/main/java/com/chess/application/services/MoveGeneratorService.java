@@ -1,6 +1,6 @@
 package com.chess.application.services;
 
-import com.chess.application.controller.model.MoveWrapper;
+import com.chess.application.model.MoveWrapper;
 import com.chess.application.model.Game;
 import com.chess.application.model.NativePayload;
 import com.chess.application.model.ReturnPayload;
@@ -24,6 +24,7 @@ public class MoveGeneratorService {
     }
 
     public Game initialiseGame(Game game) {
+        System.out.println("created a new fucking game called " + game.getUuid());
         return gameService.createNewGame(game);
     }
 

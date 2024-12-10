@@ -1,6 +1,5 @@
 package com.chess.application.services;
 
-import com.chess.application.controller.model.*;
 import com.chess.application.model.*;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;

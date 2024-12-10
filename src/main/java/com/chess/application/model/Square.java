@@ -1,4 +1,4 @@
-package com.chess.application.controller.model;
+package com.chess.application.model;
 
 public enum Square {
     a8, b8, c8, d8, e8, f8, g8, h8,

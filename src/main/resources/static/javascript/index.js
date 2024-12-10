@@ -20,9 +20,11 @@ var lastClickedOwn = null;
 var game_state = 'initialising';
 var game_ended = false;
 var menu_down = false;
+var promotion_selection_down = false;
 var currentPlayer = 'white';
 var clientPlayer = null;
 var replaying = false;
+var autoQueen = false;
 
   
 socket.onopen = function(event) {
@@ -101,7 +103,7 @@ socket.onmessage = function(event) {
         return;
     }
 
-    console.log(`status: ${messageData['status']}`);
+    // console.log(`status: ${messageData['status']}`);
         
     if (!game_ended && !isGettingLegalMovesOnly(messageData) && opponentCanMove(messageData)) {
         if (messageData['fenStringClient'].length > 0) {
@@ -115,7 +117,7 @@ socket.onmessage = function(event) {
             game_board.goMostRecent();
         }
         var [origin, destination] = game_board.flipMoveCoordinates(messageData['response']['origin'], messageData['response']['destination']);
-        console.log(`origin: ${origin}, destination: ${destination}`);
+        // console.log(`origin: ${origin}, destination: ${destination}`);
 
         game_board.executeMove(origin, destination, messageData['response']['promotion'],
             messageData['response']['castle'], messageData['response']['castleType'], game_board.invertColour(clientPlayer)
@@ -130,10 +132,10 @@ socket.onmessage = function(event) {
         socket.close();
     }
         
-    console.log("SAVING LEGAL MOVES... currentPlayer: ", currentPlayer, "; clientPlayer: ", clientPlayer);
+    // console.log("SAVING LEGAL MOVES... currentPlayer: ", currentPlayer, "; clientPlayer: ", clientPlayer);
     game_board.saveLegalMoves(messageData);
-    console.log("legal moves:");
-    console.log(game_board.legalMoves);
+    // console.log("legal moves:");
+    // console.log(game_board.legalMoves);
 };
 
 function sendMessage(message) {
@@ -149,6 +151,10 @@ function sendMessage(message) {
 function handleClick(event) {
     // console.log("handleClick; flipped: ", game_board.flipped);
     const piece = event.target;
+
+    if (menu_down || promotion_selection_down) {
+        return;
+    }
 
     if (replaying || !game_board.isSafeToMove()) {
         return;
@@ -166,26 +172,25 @@ function handleClick(event) {
         lastClickedOwn = null;
         return;
     }
-    console.log("three");
+    // console.log("three");
 
     const computedStyle = window.getComputedStyle(piece);
-    const row = computedStyle.gridRow.charAt(0);
-    const col = computedStyle.gridColumn.charAt(0);
+    const row = Number(computedStyle.gridRow.charAt(0));
+    const col = Number(computedStyle.gridColumn.charAt(0));
     var origin = ((row - 1) * 8) + (col - 1);
 
     // send move if already clicked own piece, and you have selected empty square, or a piece which is not yours
     if (lastClickedOwn != null && (!piece.classList.contains('piece') || (piece.classList.contains('piece') && !piece.classList.contains(clientPlayer)))) {
-        sendMoveToServerIfValid(piece, origin, row);
+        sendMoveToServerIfValid(piece, origin, row, col);
         lastClickedOwn = null;
         return;
     }
 
     
     // show legal moves, if you selected your own piece (and it's not what you last selected)
-    console.log(piece);
-    console.log(`origin: ${origin}, row: ${row}, col: ${col}`);
+    // console.log(piece);
+    // console.log(`origin: ${origin}, row: ${row}, col: ${col}`);
     if (piece.classList.contains(clientPlayer) && game_board.isCoordinateInLegalMoves(origin)) {
-        console.log("wow");
         lastClickedOwn = piece;
         for (let i = 0; i < game_board.getLegalMovesLength(origin); i++) {
             const backing = game_board.board.querySelector(`.board > div.backing[style*="grid-column-start: ${(game_board.getLegalMoveCoordinate(origin, i, "destination") % 8) + 1}; grid-row-start: ${Math.floor(game_board.getLegalMoveCoordinate(origin, i, "destination") / 8) + 1};"]`);
@@ -198,7 +203,84 @@ function handleClick(event) {
     }
 }
 
-function sendMoveToServerIfValid(piece, origin, rowDestination) {
+function handle_promotion_selection(promotion, lastClickedOrigin, origin, castle, castleType) {
+    console.log(`handle_promotion_selection-- promotion: ${promotion}, origin: ${lastClickedOrigin}, destination: ${origin}`);
+    handle_close_promotion_screen();
+    game_board.executeMove(lastClickedOrigin, origin, promotion, castle, castleType, clientPlayer);
+    lastClickedOwn = null;
+    invert_current_player();
+    sendMessage({
+        'messageType' : 'SEND_MOVE',
+        'uuid' : game_id,
+        'origin' : game_board.flipMoveCoordinates(lastClickedOrigin)[0],
+        'destination' : game_board.flipMoveCoordinates(origin)[0],
+        'promotion' : promotion,
+        'castle' : castle,
+        'castleType' : castleType,
+    });
+}
+
+function handle_promotion(origin, destination, rowDestination, colDestination, castle, castleType) {
+    if (autoQueen) {
+        handle_promotion_selection(2, origin, destination, castle, castleType);
+        return;
+    }
+    promotion_selection_down = true;
+    var rowStart = rowDestination === 8 ? rowDestination - 5 : rowDestination + 1;
+    var rowEnd = rowDestination === 8 ? rowDestination - 1 : rowDestination + 5;
+
+    console.log(`handle_promotion-- origin: ${origin}, destination: ${destination}, rowDestination: ${rowDestination}, rowStart: ${rowStart}, rowEnd: ${rowEnd}, colDestination: ${colDestination}`);
+
+    const promotion_selection = document.createElement('div')
+    promotion_selection.setAttribute('id', 'promotion_selection')
+    promotion_selection.classList.add('promotion_selection')
+    promotion_selection.style.gridColumnStart = colDestination;
+    promotion_selection.style.gridColumnEnd = colDestination;
+    promotion_selection.style.gridRowStart = rowStart;
+    promotion_selection.style.gridRowEnd = rowEnd;
+    board.appendChild(promotion_selection)
+
+    const close_container = document.createElement('div')
+    close_container.classList.add('close_container')
+    promotion_selection.appendChild(close_container)
+
+    const close_button = document.createElement('img')
+    close_button.setAttribute('id', 'close_option_screen')
+    close_button.src = '/images/buttons/cross.png'
+    close_button.classList.add('close_end_screen')
+    close_container.appendChild(close_button)
+    close_button.addEventListener('click', handle_close_promotion_screen, {once: true})
+
+    const img_queen = document.createElement("img");
+    img_queen.src = `/images/pieces/${clientPlayer}_queen.png`;
+    img_queen.classList.add('piece');
+    img_queen.classList.add('promotion_piece');
+    img_queen.addEventListener("click", handle_promotion_selection.bind(null, 2, origin, destination, castle, castleType));
+    promotion_selection.appendChild(img_queen);
+
+    const img_castle = document.createElement("img");
+    img_castle.src = `/images/pieces/${clientPlayer}_castle.png`;
+    img_castle.classList.add('piece');
+    img_castle.classList.add('promotion_piece');
+    img_castle.addEventListener("click", handle_promotion_selection.bind(null, 3, origin, destination, castle, castleType));
+    promotion_selection.appendChild(img_castle);
+
+    const img_bishop = document.createElement("img");
+    img_bishop.src = `/images/pieces/${clientPlayer}_bishop.png`;
+    img_bishop.classList.add('piece');
+    img_bishop.classList.add('promotion_piece');
+    img_bishop.addEventListener("click", handle_promotion_selection.bind(null, 4, origin, destination, castle, castleType));
+    promotion_selection.appendChild(img_bishop);
+
+    const img_knight = document.createElement("img");
+    img_knight.src = `/images/pieces/${clientPlayer}_knight.png`;
+    img_knight.classList.add('piece');
+    img_knight.classList.add('promotion_piece');
+    img_knight.addEventListener("click", handle_promotion_selection.bind(null, 5, origin, destination, castle, castleType));
+    promotion_selection.appendChild(img_knight);
+}
+
+function sendMoveToServerIfValid(piece, origin, rowDestination, colDestination) {
     const lastClickedStyle = window.getComputedStyle(lastClickedOwn);
     const lastClickedRow = lastClickedStyle.gridRow.charAt(0);
     const lastClickedCol = lastClickedStyle.gridColumn.charAt(0);
@@ -227,24 +309,14 @@ function sendMoveToServerIfValid(piece, origin, rowDestination) {
                 castleType = 1;
             }
             if (lastClickedOwn.classList.contains("pawn") && clientPlayer == "white" && game_board.flipGridRow(rowDestination) == 1) {
-                promotion = 2;
+                handle_promotion(lastClickedOrigin, origin, rowDestination, colDestination, castle, castleType);
+                return;
             }
             if (lastClickedOwn.classList.contains("pawn") && clientPlayer == "black" && game_board.flipGridRow(rowDestination) == 8) {
-                promotion = 2;
+                handle_promotion(lastClickedOrigin, origin, rowDestination, colDestination, castle, castleType);
+                return;
             }
-            game_board.executeMove(lastClickedOrigin, origin, promotion, castle, castleType, clientPlayer);
-            lastClickedOwn = null;
-            invert_current_player();
-            sendMessage({
-                'messageType' : 'SEND_MOVE',
-                'uuid' : game_id,
-                'origin' : game_board.flipMoveCoordinates(lastClickedOrigin)[0],
-                'destination' : game_board.flipMoveCoordinates(origin)[0],
-                'promotion' : promotion,
-                'castle' : castle,
-                'castleType' : castleType,
-            });
-
+            handle_promotion_selection(0, lastClickedOrigin, origin, castle, castleType);
             break;
         }
     }
@@ -283,6 +355,15 @@ function handle_forward_arrow() {
 function handle_flip() {
     lastClickedOwn = null;
     game_board.flipBoard(true);
+}
+
+function handle_close_promotion_screen() {
+    const promotion_selection = document.getElementById('promotion_selection')
+    if (promotion_selection){
+        promotion_selection.remove()
+    }
+
+    promotion_selection_down = false
 }
 
 function handle_close_option_screen() {

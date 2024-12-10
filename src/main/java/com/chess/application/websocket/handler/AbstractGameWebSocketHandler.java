@@ -1,6 +1,6 @@
 package com.chess.application.websocket.handler;
 
-import com.chess.application.controller.model.InitialisePayload;
+import com.chess.application.model.InitialisePayload;
 import com.chess.application.model.Colour;
 import com.chess.application.model.Game;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -9,8 +9,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
-
-import java.io.IOException;
 
 @Slf4j
 public abstract class AbstractGameWebSocketHandler extends TextWebSocketHandler {

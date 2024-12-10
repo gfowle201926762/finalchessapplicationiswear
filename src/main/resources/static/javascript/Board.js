@@ -67,7 +67,6 @@ export class Board {
 
     getLegalMovesLength(origin) {
         var flipped = this.flipMoveCoordinates(origin);
-        console.log(flipped)
         return this.legalMoves[flipped].length;
     }
 
@@ -180,10 +179,8 @@ export class Board {
     }
 
     flipMoveCoordinates() {
-        console.log(`arguments: ${arguments}`);
         var flippedCoordinates = [];
         for (let i = 0; i < arguments.length; i++) {
-            console.log(arguments[i]);
             if (this.flipped) {
                 flippedCoordinates.push(((7 - Math.floor(arguments[i] / 8)) * 8) + (7 - (arguments[i] % 8)));
             }
@@ -291,7 +288,7 @@ export class Board {
         }
         this.removeToFrom();
 
-        var [origin, destination, promotion, castle, castleType, colour, killedType] = this.moves[this.currentMove - 1];
+        var [origin, destination, promotion, castle, castleType, colour, killedType, enPassant] = this.moves[this.currentMove - 1];
         [origin, destination] = this.flipMoveCoordinates(origin, destination);
 
         console.log(`undoMove origin ${origin}, destination ${destination}, colour ${colour}`);
@@ -311,8 +308,18 @@ export class Board {
             killedElement.classList.add(this.invertColour(colour));
             killedElement.classList.add(killedType);
             killedElement.setAttribute('name', killedType);
+            var enPassantAddition = 0;
+            if (enPassant) {
+                if ((!this.flipped && colour == "black") || (this.flipped && colour == "white")) {
+                    console.log("WHITE");
+                    enPassantAddition = -1;
+                } else {
+                    console.log("BLACK");
+                    enPassantAddition = 1;
+                }
+            }
             killedElement.style.gridColumnStart = (destination % 8) + 1;
-            killedElement.style.gridRowStart = Math.floor(destination / 8) + 1;
+            killedElement.style.gridRowStart = Math.floor(destination / 8) + 1 + enPassantAddition;
             board.appendChild(killedElement);
             this.removeTakenPiece(this.invertColour(colour), killedType);
         }
@@ -350,7 +357,7 @@ export class Board {
 
 
         if (this.currentMove > 0) {
-            [origin, destination, promotion, castle, castleType, colour, killedType] = this.moves[this.currentMove - 1];
+            [origin, destination, promotion, castle, castleType, colour, killedType, enPassant] = this.moves[this.currentMove - 1];
             [origin, destination] = this.flipMoveCoordinates(origin, destination);
             const backingFrom = this.board.querySelector(`.board > div.backing[style*="grid-column-start: ${(origin % 8) + 1}; grid-row-start: ${Math.floor(origin / 8) + 1};"]`);
             const backingTo = this.board.querySelector(`.board > div.backing[style*="grid-column-start: ${(destination % 8) + 1}; grid-row-start: ${Math.floor(destination / 8) + 1};"]`);
@@ -379,7 +386,7 @@ export class Board {
         }
         this.removeToFrom();
 
-        var [origin, destination, promotion, castle, castleType, colour, killedType] = this.moves[this.currentMove];
+        var [origin, destination, promotion, castle, castleType, colour, killedType, enPassant] = this.moves[this.currentMove];
         [origin, destination] = this.flipMoveCoordinates(origin, destination);
         this.executeMove(origin, destination, promotion, castle, castleType, colour);
         this.moves.pop();
@@ -498,20 +505,50 @@ export class Board {
         this.removeToFrom();
         this.removeTracking();
 
+        const imageElement = this.board.querySelector(`.board > img[style*="grid-column-start: ${(origin % 8) + 1}; grid-row-start: ${Math.floor(origin / 8) + 1};"]`);
+        var killedElement = this.board.querySelector(`.board > img[style*="grid-column-start: ${(destination % 8) + 1}; grid-row-start: ${Math.floor(destination / 8) + 1};"]`);
+
         if (promotion == 2) {
             promotion = "queen";
+            imageElement.classList.add("queen");
+            imageElement.setAttribute("name", "queen");
         }
         if (promotion == 3) {
             promotion = "castle";
+            imageElement.classList.add("castle");
+            imageElement.setAttribute("name", "castle");
         }
         if (promotion == 4) {
             promotion = "bishop";
+            imageElement.classList.add("bishop");
+            imageElement.setAttribute("name", "bishop");
         }
         if (promotion == 5) {
             promotion = "knight";
+            imageElement.classList.add("knight");
+            imageElement.setAttribute("name", "knight");
         }
-
-        const killedElement = this.board.querySelector(`.board > img[style*="grid-column-start: ${(destination % 8) + 1}; grid-row-start: ${Math.floor(destination / 8) + 1};"]`);
+        
+        // console.log("Checking for en passant in execute move.");
+        // console.log(imageElement.classList)
+        // console.log(imageElement.style.gridRowStart)
+        // console.log(this.flipGridRow(4))
+        // console.log(colour)
+        // console.log(killedElement)
+        var enPassant = false;
+        if (imageElement.classList.contains("pawn") && imageElement.style.gridRowStart == this.flipGridRow(4) && colour == "white" && (origin % 8 != destination % 8) && killedElement == null) {
+            // must be white taking en passant
+            console.log("must be white taking en passant");
+            killedElement = this.board.querySelector(`.board > img[style*="grid-column-start: ${(destination % 8) + 1}; grid-row-start: ${Math.floor(destination / 8) + (this.flipped ? 0 : 2)};"]`);
+            enPassant = true;
+        }
+        if (imageElement.classList.contains("pawn") && imageElement.style.gridRowStart == this.flipGridRow(5) && colour == "black" && (origin % 8 != destination % 8) && killedElement == null) {
+            // must be black taking en passant
+            console.log("must be black taking en passant");
+            killedElement = this.board.querySelector(`.board > img[style*="grid-column-start: ${(destination % 8) + 1}; grid-row-start: ${Math.floor(destination / 8) + (this.flipped ? 2 : 0)};"]`);
+            enPassant = true;
+        }
+        
         var killedType = null;
         if (killedElement != null) {
             killedType = killedElement.getAttribute('name');
@@ -519,11 +556,11 @@ export class Board {
             this.addTakenPiece(this.invertColour(colour), killedType);
         }
 
-        var imageElement;
-        imageElement = this.board.querySelector(`.board > img[style*="grid-column-start: ${(origin % 8) + 1}; grid-row-start: ${Math.floor(origin / 8) + 1};"]`);
+        
         
         if (promotion != 0) {
             imageElement.src = `/images/pieces/${colour}_${promotion}.png`;
+            imageElement.classList.remove("pawn");
         }
 
         imageElement.style.gridColumnStart = (destination % 8) + 1;
@@ -560,16 +597,7 @@ export class Board {
             }
         }
 
-        if (imageElement.classList.contains("pawn") && imageElement.style.gridRowStart == this.flipGridRow(4) && colour == "white" && (origin % 8 != destination % 8) && killedElement == null) {
-            // must be white taking en passant
-            var takenEnPassant = this.board.querySelector(`.board > img[style*="grid-column-start: ${(destination % 8) + 1}; grid-row-start: ${Math.floor(destination / 8) + (this.flipped ? 0 : 2)};"]`);
-            this.board.removeChild(takenEnPassant);
-        }
-        if (imageElement.classList.contains("pawn") && imageElement.style.gridRowStart == this.flipGridRow(5) && colour == "black" && (origin % 8 != destination % 8) && killedElement == null) {
-            // must be black taking en passant
-            var takenEnPassant = this.board.querySelector(`.board > img[style*="grid-column-start: ${(destination % 8) + 1}; grid-row-start: ${Math.floor(destination / 8) + (this.flipped ? 2 : 0)};"]`);
-            this.board.removeChild(takenEnPassant);
-        }
+        
 
         const backingFrom = this.board.querySelector(`.board > div.backing[style*="grid-column-start: ${(origin % 8) + 1}; grid-row-start: ${Math.floor(origin / 8) + 1};"]`);
         const backingTo = this.board.querySelector(`.board > div.backing[style*="grid-column-start: ${(destination % 8) + 1}; grid-row-start: ${Math.floor(destination / 8) + 1};"]`);
@@ -583,7 +611,7 @@ export class Board {
         this.currentMove += 1;
         [origin, destination] = this.flipMoveCoordinates(origin, destination);
         console.log(`pushing origin: ${origin}, destination: ${destination}`);
-        this.moves.push([origin, destination, promotion, castle, castleType, colour, killedType]);
+        this.moves.push([origin, destination, promotion, castle, castleType, colour, killedType, enPassant]);
     }
 }
 

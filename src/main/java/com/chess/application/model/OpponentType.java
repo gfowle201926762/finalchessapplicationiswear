@@ -1,6 +1,4 @@
-package com.chess.application.controller.model;
-
-import com.chess.application.model.Colour;
+package com.chess.application.model;
 
 public enum OpponentType {
     HUMAN, COMPUTER;

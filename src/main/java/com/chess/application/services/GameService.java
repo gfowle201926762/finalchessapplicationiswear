@@ -1,6 +1,6 @@
 package com.chess.application.services;
 
-import com.chess.application.controller.model.Move;
+import com.chess.application.model.Move;
 import com.chess.application.model.Game;
 import com.chess.application.model.ReturnPayload;
 import com.chess.application.model.Status;

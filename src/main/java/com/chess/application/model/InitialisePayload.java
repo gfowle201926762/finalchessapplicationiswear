@@ -1,6 +1,5 @@
-package com.chess.application.controller.model;
+package com.chess.application.model;
 
-import com.chess.application.model.Colour;
 import lombok.Builder;
 import lombok.Getter;
 

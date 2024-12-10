@@ -1,10 +1,8 @@
 package com.chess.application.websocket.handler;
 
-import com.chess.application.controller.model.*;
 import com.chess.application.model.*;
 import com.chess.application.services.GameService;
 import com.chess.application.services.MoveGeneratorService;
-import com.chess.application.services.UserService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -17,14 +15,11 @@ import org.springframework.web.socket.WebSocketSession;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentLinkedDeque;
-import java.util.concurrent.ConcurrentSkipListSet;
-import java.util.concurrent.ThreadPoolExecutor;
 import java.util.stream.Collectors;
 
 @Slf4j
 @Service
-public class GamePlayGameWebSocketHandler extends AbstractGameWebSocketHandler {
+public class GamePlayWebSocketHandler extends AbstractGameWebSocketHandler {
 
     private static int SECONDS_TO_TIMEOUT = 30;
 
@@ -34,23 +29,19 @@ public class GamePlayGameWebSocketHandler extends AbstractGameWebSocketHandler {
     private final Map<String, WebSocketSession> connections = new ConcurrentHashMap<>();
     private final MoveGeneratorService moveGeneratorService;
     private final ObjectMapper objectMapper;
-    private final UserService userService;
     private final GameService gameService;
-//    private final ThreadPoolExecutor executor;
 
     @Autowired
-    public GamePlayGameWebSocketHandler(MoveGeneratorService moveGeneratorService, GameService gameService, UserService userService, ObjectMapper objectMapper) {
+    public GamePlayWebSocketHandler(MoveGeneratorService moveGeneratorService, GameService gameService, ObjectMapper objectMapper) {
         super(objectMapper);
         this.moveGeneratorService = moveGeneratorService;
         this.objectMapper = objectMapper;
         this.gameService = gameService;
-        this.userService = userService;
-//        this.executor = executor;
     }
 
     @Override
     public void afterConnectionEstablished(WebSocketSession session) throws Exception {
-//        activeSessions.add(session);
+
     }
 
     @Override
@@ -65,6 +56,7 @@ public class GamePlayGameWebSocketHandler extends AbstractGameWebSocketHandler {
                 gameService.updateGame(game.getUuid(), game.getBlackId().equals(id) ? Status.WHITE_VICTORY : Status.BLACK_VICTORY, Status.Reason.ABANDONMENT);
                 activeHumanGames.remove(game.getUuid());
                 sendAbandonment(game, id);
+                System.out.println("ummm hwat?");
         });
 
         connections.remove(id);
@@ -231,7 +223,10 @@ public class GamePlayGameWebSocketHandler extends AbstractGameWebSocketHandler {
         connections.put(clientId, session);
 
         Game game = gameService.getGame(gameId);
-        if (!Status.ONGOING.equals(game.getStatus())) {
+        if (game == null) {
+            log.error("Cannot start game {} because it does not exist", gameId);
+        }
+        else if (!Status.ONGOING.equals(game.getStatus())) {
             replayGame(session, gameId);
         }
         else if (OpponentType.COMPUTER.equals(game.getOpponentType())) {

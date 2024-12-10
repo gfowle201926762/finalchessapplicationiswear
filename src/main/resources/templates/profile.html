@@ -36,7 +36,7 @@
                                 <p th:text="${game.whiteId == profile.username ? game.blackId : game.whiteId}"></p>
                                 <a class='challenge_info_wrapper' th:href="@{'/game/' + ${game.uuid}}">
                                     <p class="small_text" th:text="${game.dateTime}"></p>
-                                    <p th:text="${game.status}"></p>
+                                    <p class="small_text" th:text="${game.status}"></p>
                                 </a>
                             </div>
                         </div>

@@ -51,7 +51,7 @@ function handle_new_game() {
             'playerId' : playerId,
             'opponentId' : 'placementOpponentId', // not needed
             'opponentType' : module.opposition,
-            'breadth' : 100,
+            'breadth' : 5,
             'colour' : colour,
             'timeLimit' : module.compute_time
         });        
