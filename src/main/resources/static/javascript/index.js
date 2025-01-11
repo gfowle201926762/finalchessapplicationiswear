@@ -1,6 +1,27 @@
 
 import { game_board } from "./Board.js";
 
+// var image_cache = {}
+// create_cache();
+
+// function create_cache() {
+//     for (const col of ['white', 'black']) {
+//         for (const type of ['king', 'queen', 'bishop', 'knight', 'castle', 'pawn']) {
+//             image_cache[`/images/pieces/${col}_${type}.png`] = [];
+//             if (type == 'king') {
+//                 image_cache[`/images/pieces/${col}_${type}.png`].push(document.createElement("img"));
+//                 image_cache[`/images/pieces/${col}_${type}.png`][0].src = `/images/pieces/${col}_${type}.png`;
+//             }
+//             else {
+//                 for (let i = 0; i < 8; i++) {
+//                     image_cache[`/images/pieces/${col}_${type}.png`].push(document.createElement("img"));
+//                     image_cache[`/images/pieces/${col}_${type}.png`][i].src = `/images/pieces/${col}_${type}.png`;
+//                 }
+//             }
+//         }
+//     }
+// }
+
 please_wait();
 initialiseButtons();
 
@@ -12,7 +33,11 @@ const regex = "[^/]+$";
 const game_id = window.location.href.match(regex)[0];
 console.log(`game_id: ${game_id}`);
 
-const socket = new WebSocket("ws://localhost:8080/websockets/game");
+
+// need to pass in the address here...
+// gus-chess-1347475692.eu-west-2.elb.amazonaws.com
+console.log(`window.location.hostname: ${window.location.hostname}`);
+const socket = new WebSocket(`ws://${window.location.hostname}:8080/websockets/game`);
 
 
 var lastClickedOwn = null;
@@ -246,34 +271,39 @@ function handle_promotion(origin, destination, rowDestination, colDestination, c
 
     const close_button = document.createElement('img')
     close_button.setAttribute('id', 'close_option_screen')
-    close_button.src = '/images/buttons/cross.png'
+    // close_button.src = '/images/buttons/cross.png'
+    game_board.setImageSource(close_button, '/images/buttons/cross.png');
     close_button.classList.add('close_end_screen')
     close_container.appendChild(close_button)
     close_button.addEventListener('click', handle_close_promotion_screen, {once: true})
 
     const img_queen = document.createElement("img");
-    img_queen.src = `/images/pieces/${clientPlayer}_queen.png`;
+    // img_queen.src = `/images/pieces/${clientPlayer}_queen.png`;
+    game_board.setImageSource(img_queen, `/images/pieces/${clientPlayer}_queen.png`);
     img_queen.classList.add('piece');
     img_queen.classList.add('promotion_piece');
     img_queen.addEventListener("click", handle_promotion_selection.bind(null, 2, origin, destination, castle, castleType));
     promotion_selection.appendChild(img_queen);
 
     const img_castle = document.createElement("img");
-    img_castle.src = `/images/pieces/${clientPlayer}_castle.png`;
+    // img_castle.src = `/images/pieces/${clientPlayer}_castle.png`;
+    game_board.setImageSource(img_castle, `/images/pieces/${clientPlayer}_castle.png`);
     img_castle.classList.add('piece');
     img_castle.classList.add('promotion_piece');
     img_castle.addEventListener("click", handle_promotion_selection.bind(null, 3, origin, destination, castle, castleType));
     promotion_selection.appendChild(img_castle);
 
     const img_bishop = document.createElement("img");
-    img_bishop.src = `/images/pieces/${clientPlayer}_bishop.png`;
+    // img_bishop.src = `/images/pieces/${clientPlayer}_bishop.png`;
+    game_board.setImageSource(img_bishop, `/images/pieces/${clientPlayer}_bishop.png`);
     img_bishop.classList.add('piece');
     img_bishop.classList.add('promotion_piece');
     img_bishop.addEventListener("click", handle_promotion_selection.bind(null, 4, origin, destination, castle, castleType));
     promotion_selection.appendChild(img_bishop);
 
     const img_knight = document.createElement("img");
-    img_knight.src = `/images/pieces/${clientPlayer}_knight.png`;
+    // img_knight.src = `/images/pieces/${clientPlayer}_knight.png`;
+    game_board.setImageSource(img_knight, `/images/pieces/${clientPlayer}_knight.png`);
     img_knight.classList.add('piece');
     img_knight.classList.add('promotion_piece');
     img_knight.addEventListener("click", handle_promotion_selection.bind(null, 5, origin, destination, castle, castleType));
@@ -410,7 +440,8 @@ function handle_menu(event) {
 
         const close_button = document.createElement('img')
         close_button.setAttribute('id', 'close_option_screen')
-        close_button.src = '/images/buttons/cross.png'
+        // close_button.src = '/images/buttons/cross.png'
+        game_board.setImageSource(close_button, '/images/buttons/cross.png');
         close_button.classList.add('close_end_screen')
         close_container.appendChild(close_button)
         close_button.addEventListener('click', handle_close_option_screen, {once: true})
@@ -508,28 +539,36 @@ function initialiseButtons() {
     const start_arrow = document.createElement('img')
     start_arrow.setAttribute('id', 'start_arrow')
     start_arrow.classList.add('board_buttons')
-    start_arrow.src = '/images/buttons/start-arrow.png'
+    // start_arrow.src = '/images/buttons/start-arrow.png'
+    game_board.setImageSource(start_arrow, '/images/buttons/start-arrow.png');
+    // start_arrow.src = '/images/pieces/white_king.png'
     bottom_board_wrapper.appendChild(start_arrow)
     start_arrow.addEventListener('click', handle_start_arrow)
 
     const left_arrow = document.createElement('img')
     left_arrow.setAttribute('id', 'left_arrow')
     left_arrow.classList.add('board_buttons')
-    left_arrow.src = '/images/buttons/left-arrow.png'
+    // left_arrow.src = '/images/buttons/left-arrow.png'
+    game_board.setImageSource(left_arrow, '/images/buttons/left-arrow.png');
+    // var colour1 = "black";
+    // var type1 = "king";
+    // left_arrow.src = `/images/pieces/${colour1}_${type1}.png`
     bottom_board_wrapper.appendChild(left_arrow)
     left_arrow.addEventListener('click', handle_back_arrow)
 
     const right_arrow = document.createElement('img')
     right_arrow.setAttribute('id', 'right_arrow')
     right_arrow.classList.add('board_buttons')
-    right_arrow.src = '/images/buttons/right-arrow.png'
+    // right_arrow.src = '/images/buttons/right-arrow.png'
+    game_board.setImageSource(right_arrow, '/images/buttons/right-arrow.png');
     bottom_board_wrapper.appendChild(right_arrow)
     right_arrow.addEventListener('click', handle_forward_arrow)
 
     const end_arrow = document.createElement('img')
     end_arrow.setAttribute('id', 'end_arrow')
     end_arrow.classList.add('board_buttons')
-    end_arrow.src = '/images/buttons/end-arrow.png'
+    // end_arrow.src = '/images/buttons/end-arrow.png'
+    game_board.setImageSource(end_arrow, '/images/buttons/end-arrow.png');
     bottom_board_wrapper.appendChild(end_arrow)
     end_arrow.addEventListener('click', handle_end_arrow)
 
@@ -544,7 +583,8 @@ function initialiseButtons() {
 
     const menu_button = document.createElement('img')
     menu_button.setAttribute('id', 'menu_button')
-    menu_button.src = '/images/buttons/settings.png'
+    // menu_button.src = '/images/buttons/settings.png'
+    game_board.setImageSource(menu_button, '/images/buttons/settings.png');
     menu_button.classList.add('board_buttons')
     menu_collection.appendChild(menu_button)
     menu_button.addEventListener('click', handle_menu)
@@ -552,7 +592,8 @@ function initialiseButtons() {
     const flip_button = document.createElement('img')
     flip_button.setAttribute('id', 'flip_button')
     flip_button.classList.add('board_buttons')
-    flip_button.src = '/images/buttons/flip_button.png'
+    // flip_button.src = '/images/buttons/flip_button.png'
+    game_board.setImageSource(flip_button, '/images/buttons/flip_button.png');
     menu_collection.appendChild(flip_button)
     flip_button.addEventListener('click', handle_flip)
 }
@@ -621,7 +662,8 @@ function game_finished(result, reason, disallowed){
 
         const close_button = document.createElement('img')
         close_button.setAttribute('id', 'close_end_screen')
-        close_button.src = '/images/buttons/cross.png'
+        // close_button.src = '/images/buttons/cross.png'
+        game_board.setImageSource(close_button, '/images/buttons/cross.png');
         close_button.classList.add('close_end_screen')
         close_container.appendChild(close_button)
         close_button.addEventListener('click', handle_close_end_screen, {once: true})

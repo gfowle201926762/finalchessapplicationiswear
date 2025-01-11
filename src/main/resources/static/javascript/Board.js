@@ -9,6 +9,7 @@ export class Board {
     */
 
     constructor() {
+        this.s3Bucket = "https://gus-chess.s3.eu-west-2.amazonaws.com";
         this.board = document.getElementById("board");
         this.currentMove = 0;
         this.moves = [];
@@ -191,7 +192,58 @@ export class Board {
         return flippedCoordinates;
     }
 
-    processFEN(string) {
+    loadImage(imageElement, source, attempt) {
+        // return Promise.reject(imageElement);
+        return new Promise((resolve, reject) => {
+            imageElement.src = source;
+            imageElement.onload = () => resolve(imageElement); // Resolve when the image loads
+            imageElement.onerror = () => reject(imageElement); // Reject on error
+        });
+    }
+
+    setImageSource(imageElement, source, retries=1) {
+        imageElement.src = source;
+
+        // console.log(`fetching ${source}`);
+
+        // var attempts = 0;
+        // var found = false;
+        // while (attempts < retries) {
+        //     await this.loadImage(imageElement, source, attempts);
+        //     console.log("after awaited.");
+        //     if (found) {
+        //         return;
+        //     }
+        //     attempts += 1;
+        // }
+    }
+
+
+
+    // setImageSource(imageElement, source, retryDelay=1000, retries=10) {
+        
+    //     let attempts = 0;
+
+    //     function tryLoad() {
+
+    //         imageElement.src = source;
+    //         attempts += 1;
+
+    //         imageElement.onerror = () => {
+    //             if (attempts < retries) {
+    //                 console.warn(`Image load failed for ${source}. Retrying attempt ${attempts}...`);
+    //                 setTimeout(tryLoad, retryDelay); // Retry after a delay
+    //             } else {
+    //                 console.error(`Failed to load image after ${retries} attempts.`);
+    //                 imageElement.onerror = null; // Prevent infinite loop
+    //             }
+    //         }
+    //     }
+
+    //     tryLoad();
+    // }
+
+    async processFEN(string) {
         this.removeEverything();
         var cell = 0;
         for (let i = 0; i < string.length; i++) {
@@ -260,7 +312,10 @@ export class Board {
                 type = 'pawn';
             }
 
-            imageElement.src = `/images/pieces/${colour}_${type}.png`;
+            // console.log(`board.js window.location: ${window.location}`);
+            // console.log(`board.js document.baseURI: ${document.baseURI}`);
+            this.setImageSource(imageElement, `${this.s3Bucket}/images/pieces/${colour}_${type}.png`);
+            // imageElement.src = `/images/pieces/${colour}_${type}.png`;
             imageElement.classList.add(colour);
             imageElement.classList.add(type);
             imageElement.setAttribute('name', type);
@@ -295,7 +350,8 @@ export class Board {
 
         var imageElement = this.board.querySelector(`.board > img[style*="grid-column-start: ${(destination % 8) + 1}; grid-row-start: ${Math.floor(destination / 8) + 1};"]`);
         if (promotion != 0) {
-            imageElement.src = `/images/pieces/${colour}_pawn.png`;
+            // imageElement.src = `/images/pieces/${colour}_pawn.png`;
+            this.setImageSource(imageElement, `${this.s3Bucket}/images/pieces/${colour}_pawn.png`);
         }
 
         imageElement.style.gridColumnStart = (origin % 8) + 1;
@@ -304,7 +360,8 @@ export class Board {
         if (killedType != null) {
             const killedElement = document.createElement("img");
             killedElement.classList.add('piece');
-            killedElement.src = `/images/pieces/${this.invertColour(colour)}_${killedType}.png`;
+            // killedElement.src = `/images/pieces/${this.invertColour(colour)}_${killedType}.png`;
+            this.setImageSource(killedElement, `${this.s3Bucket}/images/pieces/${this.invertColour(colour)}_${killedType}.png`)
             killedElement.classList.add(this.invertColour(colour));
             killedElement.classList.add(killedType);
             killedElement.setAttribute('name', killedType);
@@ -487,7 +544,8 @@ export class Board {
         }
 
         const image = document.createElement('img')
-        image.src = `/images/pieces/${colour}_${killedType}.png`;
+        // image.src = `/images/pieces/${colour}_${killedType}.png`;
+        this.setImageSource(image, `${this.s3Bucket}/images/pieces/${colour}_${killedType}.png`);
 
         if (killedType == 'pawn'){
             image.classList.add('small_pawn_image')
@@ -559,7 +617,8 @@ export class Board {
         
         
         if (promotion != 0) {
-            imageElement.src = `/images/pieces/${colour}_${promotion}.png`;
+            // imageElement.src = `/images/pieces/${colour}_${promotion}.png`;
+            this.setImageSource(imageElement, `${this.s3Bucket}/images/pieces/${colour}_${promotion}.png`)
             imageElement.classList.remove("pawn");
         }
 

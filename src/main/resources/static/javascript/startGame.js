@@ -8,7 +8,10 @@ import * as module from './setup.js';
 
 const playerId = await getPlayerId();
 console.log(`playerId: ${playerId}`);
-const socket = new WebSocket("ws://localhost:8080/websockets/game-setup");
+
+// need to pass in address here
+console.log(`window.location.hostname: ${window.location.hostname}`);
+const socket = new WebSocket(`ws://${window.location.hostname}:8080/websockets/game-setup`);
 
 var game_request_sent = false;
 
