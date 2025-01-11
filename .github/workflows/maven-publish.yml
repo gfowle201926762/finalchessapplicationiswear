@@ -33,9 +33,9 @@ jobs:
       # Step 5: Build the Docker image
       - name: Build Docker Image
         run: |
-          docker build -t ghcr.io/${{ github.repository }}/gus-chess:latest .
+          docker build -t ghcr.io/${{ github.repository.split('/')[1] }}/gus-chess:latest .
 
       # Step 6: Push the Docker image to GitHub Container Registry
       - name: Push Docker Image to GitHub Container Registry
         run: |
-          docker push ghcr.io/${{ github.repository }}/gus-chess:latest
+          docker push ghcr.io/${{ github.repository.split('/')[1] }}/gus-chess:latest
