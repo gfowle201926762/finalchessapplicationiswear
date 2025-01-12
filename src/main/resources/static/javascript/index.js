@@ -37,7 +37,7 @@ console.log(`game_id: ${game_id}`);
 // need to pass in the address here...
 // gus-chess-1347475692.eu-west-2.elb.amazonaws.com
 console.log(`window.location.hostname: ${window.location.hostname}`);
-const socket = new WebSocket(`wss://${window.location.hostname}:8080/websockets/game`);
+const socket = new WebSocket(`wss://${window.location.hostname}:443/websockets/game`);
 
 
 var lastClickedOwn = null;
