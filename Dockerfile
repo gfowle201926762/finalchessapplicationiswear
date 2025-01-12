@@ -13,7 +13,7 @@ COPY src/main/resources/static/images/ /images/
 
 # Expose the application port (adjust if your app runs on a different port)
 EXPOSE 443
-EXPOSE 8080
+#EXPOSE 8080
 EXPOSE 3306
 
 # Run the application
