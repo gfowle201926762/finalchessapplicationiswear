@@ -11,7 +11,7 @@ console.log(`playerId: ${playerId}`);
 
 // need to pass in address here
 console.log(`window.location.hostname: ${window.location.hostname}`);
-const socket = new WebSocket(`ws://${window.location.hostname}:8080/websockets/game-setup`);
+const socket = new WebSocket(`wss://${window.location.hostname}:8080/websockets/game-setup`);
 
 var game_request_sent = false;
 
