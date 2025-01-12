@@ -6,7 +6,7 @@ FROM openjdk:17-jdk-slim
 
 # Copy the JAR file from the host to the container
 COPY target/application-0.0.1-SNAPSHOT.jar app.jar
-RUN mkdir libs
+#RUN #mkdir libs
 COPY src/main/libs/libchess_fucked.dylib libs/libchess.so
 
 COPY src/main/resources/static/images/ /images/
