@@ -128,7 +128,7 @@ socket.onmessage = function(event) {
         return;
     }
 
-    // console.log(`status: ${messageData['status']}`);
+    console.log(`status: ${messageData['status']}`);
         
     if (!game_ended && !isGettingLegalMovesOnly(messageData) && opponentCanMove(messageData)) {
         if (messageData['fenStringClient'].length > 0) {
@@ -157,10 +157,10 @@ socket.onmessage = function(event) {
         socket.close();
     }
         
-    // console.log("SAVING LEGAL MOVES... currentPlayer: ", currentPlayer, "; clientPlayer: ", clientPlayer);
+    console.log("SAVING LEGAL MOVES... currentPlayer: ", currentPlayer, "; clientPlayer: ", clientPlayer);
     game_board.saveLegalMoves(messageData);
-    // console.log("legal moves:");
-    // console.log(game_board.legalMoves);
+    console.log("legal moves:");
+    console.log(game_board.legalMoves);
 };
 
 function sendMessage(message) {
